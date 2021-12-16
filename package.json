@@ -1,0 +1,29 @@
+{
+  "name": "tsstarter",
+  "version": "1.0.0",
+  "description": "A template for building TS code with Jest + git + npm publish",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "test": "npm run build && npx jest",
+    "build": "tsc -p tsconfig-build.json",
+    "build:commit": "npm run commit -- \"New build\"",
+    "commit": "git add . && git commit -m ",
+    "patch": "npm version patch",
+    "push": "git push origin main",
+    "pub": "run-s build build:commit patch push pub:npm",
+    "pub:npm": "npm publish"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "jest": "^27.4.5",
+    "npm-run-all": "^4.1.5",
+    "ts-jest": "^27.1.1",
+    "typescript": "^4.5.4"
+  }
+}
