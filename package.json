@@ -11,11 +11,11 @@
     "test": "npm run build && npx jest",
     "build": "tsc -p tsconfig-build.json",
     "build:commit": "npm run commit -- \"New build\"",
-    "commit": "git add . && git commit -m ",
     "patch": "npm version patch",
+    "commit": "git add . && git commit -m ",
     "push": "git push origin main",
-    "pub": "run-s -c build build:commit patch push pub:npm",
-    "pub:npm": "npm publish"
+    "pub": "run-s -c build \"commit -- %npm_config_m%\" patch push pub:npm",
+    "pub:npm": "npm publish --access public"
   },
   "author": "",
   "license": "ISC",
