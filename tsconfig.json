@@ -3,7 +3,6 @@
         "target": "es5",
         "module": "commonjs",
         "esModuleInterop": true,
-        "types": ["jest", "node"],
-        "lib": ["dom", "ES2017"]
+        "types": ["jest", "node"]
     }
 }
