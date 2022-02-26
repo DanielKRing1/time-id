@@ -1,194 +1,183 @@
 type Dict<T> = Record<string, T>;
 
-type TrieKV<T> = {
+export type TrieKV<T> = {
     key: string;
     value: T;
 };
-type Trie<T> = {
+export type Trie<T> = {
     values: T[];
     childTrees: Dict<Trie<T>>;
 
-    add: (keyValue: TrieKV<T>, keyPointer?: number) => boolean;
-    rm: (keyValue: TrieKV<T>, keyPointer?: number) => boolean;
-    get: (key: string, keyPointer?: number) => T[];
+    add: (keyValue: TrieKV<T>) => boolean;
+    rm: (keyValue: TrieKV<T>) => boolean;
+    getExact: (key: string) => T[];
+    getAll: (key: string) => T[];
 
-    _hasChildTree: (char: string) => boolean;
-    _getAllChildTrees: (parentTree: Trie<T>) => Trie<T>[];
-    _dig: (key: string, shouldDigDeeper: (currentTree: Trie<T>, char: string) => boolean, keyPointer?: number) => Trie<T>;
+    // _hasChildTree: (char: string) => boolean;
+    // _addValue: (v: T) => boolean;
+    // _rmValue: (v: T) => boolean;
+    // _getAllChildTrees: (parentTree: Trie<T>) => Trie<T>[];
+    // _dig: (key: string, shouldDigDeeper: (currentTree: Trie<T>, char: string) => boolean, keyPointer?: number) => Trie<T>;
 };
 
-function createTrieTreeNode<T>(canHaveDuplicates: boolean = false, isRoot: boolean = false): Trie<T> {
+export default function createTrieTreeNode<T>(canHaveDuplicates: boolean = false, isRoot: boolean = false): Trie<T> {
     const values: T[] = [];
     const childTrees: Dict<Trie<T>> = {};
 
     // PUBLIC API
 
-    const add = (keyValue: TrieKV<T>, keyPointer: number = 0): boolean => {
+    const add = (keyValue: TrieKV<T>): boolean => {
         const { key, value } = keyValue;
 
-        // 1. Out of bounds, short circuit
-        if(keyPointer > key.length) return false;
+        // 1. Dig through (and create if necessary) the path of child trees, according to the string path
+        const shouldDigDeeper = (currentTree: Trie<T>, char: string) => true;
+        const destinationTree: Trie<T> = _dig(thisNode, key, shouldDigDeeper);
 
-        // 2. Final char, add value to current tree
-        if(keyPointer == key.length) return _addValue(value);
-
-        // 3. Get next letter in the string path
-        const char: string = key[keyPointer];
-
-        // 4. Get (and create if necessary) the next child tree in the string path
-        const childTree: Trie<T> =_getChildTree(char);
-        // 5. Recursively add, incrementing pointer
-        return childTree.add(keyValue, keyPointer + 1);
+        // 2. Add value to destination tree
+        return _addValue(destinationTree, value, canHaveDuplicates);
     };
 
-    const rm = (keyValue: TrieKV<T>, keyPointer: number = 0): boolean => {
+    const rm = (keyValue: TrieKV<T>): boolean => {
         const { key, value } = keyValue;
 
-        // 1. Out of bounds, short circuit
-        if(keyPointer > key.length) return false;
-
-        // 2. Final char, remove value from current tree
-        if(keyPointer == key.length) return _rmValue(value);
-
-        // 3. Get next letter in the string path
-        const char: string = key[keyPointer];
-
-        // 4. If does not have child tree for next letter, short circuit
+        // 1.1. If does not have child tree for any point along string path, short circuit
         //      -- If there is no tree, then there is no value to remove
-        if(!_hasChildTree(char)) return false;
+        const shouldDigDeeper = (currentTree: Trie<T>, char: string) => _hasChildTree(currentTree, char);
+        // 1.2. Dig through the path of child trees according to the string path
+        const destinationTree: Trie<T> = _dig(thisNode, key, shouldDigDeeper);
 
-        // 5. Get the next child tree in the string path, if it was confirmed to exist
-        const childTree: Trie<T> =_getChildTree(char);
-        // 6. Recursively rm, incrementing pointer
-        return childTree.rm(keyValue, keyPointer + 1);
+        // 2. Invalid string path, short circuit
+        if(!destinationTree) return false;
+
+        // 3. Remove value from destinaiton tree
+        return _rmValue(destinationTree, value);
     };
 
-    const get = (key: string, keyPointer: number = 0): T[] => {
-        // 1. Out of bounds, short circuit
-        if(keyPointer >= key.length) return [];
-
-        // 2. Final char, get all child trees from this root
-        if(keyPointer == key.length) {
-            const allChildTrees: Trie<T>[] = _getAllChildTrees(thisNode);
-            return allChildTrees.reduce((acc: T[], tree: Trie<T>) => {
-                acc.concat(tree.values);
-                return acc;
-            }, []);
-        }
-
-        // 3. Get next letter in the string path
-        const char: string = key[keyPointer];
-
-        // 4. If does not have child tree for next letter, short circuit
+    const getAll = (key: string): T[] => {
+        // 1.1. If does not have child tree for any point along string path, short circuit
         //      -- If there is no tree, then there is no value to remove
-        if(!_hasChildTree(char)) return [];
+        const shouldDigDeeper = (currentTree: Trie<T>, char: string) => _hasChildTree(currentTree, char);
+        // 1.2. Dig through the path of child trees according to the string path
+        const destinationTree: Trie<T> = _dig(thisNode, key, shouldDigDeeper);
 
-        // 5. Get the next child tree in the string path, if it was confirmed to exist
-        const childTree: Trie<T> =_getChildTree(char);
-        // 6. Recursively rm, incrementing pointer
-        return childTree.get(key, keyPointer + 1);
-    };
-
-    // PRIVATE HELPER API
-
-    const _hasChildTree = (char: string): boolean => !!childTrees[char];
-
-    const _addChildTree = (char: string): boolean => {
-        if(!_hasChildTree(char)) {
-            childTrees[char] = createTrieTreeNode(false);
-            return true;
-        }
-
-        return false;
-    }
-
-    const _getChildTree = (char: string): Trie<T> => {
-        _addChildTree(char);
-        return childTrees[char];
-    }
-
-    const _getValueIndex = (v: T): number => values.indexOf(v);
-
-    const _hasValue = (v: T): boolean => _getValueIndex(v) != -1;
-    
-    const _addValue = (v: T): boolean => {
-        if(!canHaveDuplicates && _hasValue(v)) return false;
-
-        values.push(v);
-        return true;
-    }
-
-    const _rmValue = (v: T): boolean => {
-        if(_hasValue(v)) {
-            const valueIndex: number = _getValueIndex(v);
-            values.splice(valueIndex, 1);
-
-            return true;
-        }
+        // 2. Invalid string path, short circuit
+        if(!destinationTree) return [];
         
-        return false;
-    }
+        // 3. Get all child trees from the destination tree
+        const allChildTrees: Trie<T>[] = _getAllChildTrees(destinationTree);
 
-    const _dig = (key: string, shouldDigDeeper: (currentTree: Trie<T>, char: string) => boolean, keyPointer: number = 0): Trie<T> => {
-        // 1. Out of bounds, short circuit
-        if(keyPointer > key.length) return undefined;
+        // 4. Return the combined set of values of all child trees
+        return allChildTrees.reduce((acc: T[], tree: Trie<T>) => acc.concat(tree.values), destinationTree.values.slice());
+    };
 
-        // 2. Final char, remove value from current tree
-        // TODO check what 'this' is
-        if(keyPointer == key.length) {
-            console.log(thisNode);
-            return thisNode;
-        }
+    const getExact = (key: string): T[] => {
+        // 1.1. If does not have child tree for any point along string path, short circuit
+        //      -- If there is no tree, then there is no value to remove
+        const shouldDigDeeper = (currentTree: Trie<T>, char: string) => _hasChildTree(currentTree, char);
+        // 1.2. Dig through the path of child trees according to the string path
+        const destinationTree: Trie<T> = _dig(thisNode, key, shouldDigDeeper);
+        
+        // 2. Invalid string path, short circuit
+        if(!destinationTree) return [];
 
-        // 3. Get next letter in the string path
-        const char: string = key[keyPointer];
-
-        // 4. If should not dig deeper, short circuit
-        console.log(thisNode);
-        if(!shouldDigDeeper(thisNode, char)) return undefined;
-
-        // 5. Get the next child tree in the string path, if it was confirmed to exist
-        const childTree: Trie<T> =_getChildTree(char);
-        // 6. Recursively rm, incrementing pointer
-        return childTree._dig(key, shouldDigDeeper, keyPointer + 1);
-    }
-
-    const _getAllChildTrees = (parentTree: Trie<T>): Trie<T>[] => {
-        console.log(parentTree);
-
-        // 1. Get all child paths to take
-        const chars: string[] = Object.keys(childTrees);
-
-        // 2. No more child trees, return empty array
-        if(chars.length == 0) return [];
-
-        // 3. Record current level of child trees
-        const _childTrees: Trie<T>[] = Object.values(childTrees);
-        // 4. Recursively traverse each child path and add each path's set of child trees
-        chars.forEach((char: string) => _childTrees.concat(parentTree._getAllChildTrees(childTrees[char])));
-
-        return _childTrees;
-    }
+        // 3. Return the combined set of values of all child trees
+        return destinationTree.values;
+    };
 
     const thisNode: Trie<T> = {
         values,
         childTrees,
         add,
         rm,
-        get,
-        _dig,
-        _hasChildTree,
-        _getAllChildTrees,
+        getExact,
+        getAll,
     }
 
     return thisNode
 };
 
-export default (canHaveDuplicates: boolean) => createTrieTreeNode(canHaveDuplicates, true);
+// PRIVATE HELPER API
+
+function _hasChildTree<T> (treeNode: Trie<T>, char: string): boolean {
+    return !!treeNode.childTrees[char];
+}
+
+function _addChildTree<T> (treeNode: Trie<T>, char: string): boolean {
+    if(!_hasChildTree(treeNode, char)) {
+        treeNode.childTrees[char] = createTrieTreeNode(false);
+        return true;
+    }
+
+    return false;
+}
+
+function _getChildTree<T> (treeNode: Trie<T>, char: string): Trie<T> {
+    _addChildTree(treeNode, char);
+    return treeNode.childTrees[char];
+}
+
+function _getValueIndex<T> (treeNode: Trie<T>, v: T): number {
+    return treeNode.values.indexOf(v);
+}
+
+
+function _hasValue<T> (treeNode: Trie<T>, v: T): boolean {
+    return _getValueIndex(treeNode, v) != -1;
+}
+    
+function _addValue<T> (treeNode: Trie<T>, v: T, canHaveDuplicates: boolean): boolean {
+    if(!canHaveDuplicates && _hasValue(treeNode, v)) return false;
+
+    treeNode.values.push(v);
+    return true;
+}
+
+function _rmValue<T> (treeNode: Trie<T>, v: T): boolean {
+    if(_hasValue(treeNode, v)) {
+        const valueIndex: number = _getValueIndex(treeNode, v);
+        treeNode.values.splice(valueIndex, 1);
+
+        return true;
+    }
+    
+    return false;
+}
+
+function _dig<T> (parentTree: Trie<T>, key: string, shouldDigDeeper: (currentTree: Trie<T>, char: string) => boolean, keyPointer: number = 0): Trie<T> {
+    // 1. Out of bounds, short circuit
+    if(keyPointer > key.length) return undefined;
+
+    // 2. Final char, remove value from current tree
+    // TODO check what 'this' is
+    if(keyPointer == key.length) return parentTree;
+
+    // 3. Get next letter in the string path
+    const char: string = key[keyPointer];
+
+    // 4. If should not dig deeper, short circuit
+    if(!shouldDigDeeper(parentTree, char)) return undefined;
+
+    // 5. Get the next child tree in the string path, if it was confirmed to exist
+    const childTree: Trie<T> =_getChildTree(parentTree, char);
+    // 6. Recursively rm, incrementing pointer
+    return _dig(childTree, key, shouldDigDeeper, keyPointer + 1);
+}
+
+function _getAllChildTrees<T> (parentTree: Trie<T>): Trie<T>[] {
+    // 1. Get all child paths to take
+    const chars: string[] = Object.keys(parentTree.childTrees);
+
+    // 2. No more child trees, return empty array
+    if(chars.length == 0) return [];
+
+    // 3.1. Record current level of child trees
+    // 3.2. Recursively traverse each child path and add each path's set of child trees
+    return chars.reduce((acc: Trie<T>[], char: string) => acc.concat(_getAllChildTrees(parentTree.childTrees[char])), Object.values(parentTree.childTrees));
+}
 
 const trie: Trie<any> = createTrieTreeNode(false, true);
 trie.add({ key: 'abc', value: 'ABC' });
-const childTree: Trie<any> = trie._dig('abc', (currentTree: Trie<any>, char: string) => {
+const childTree: Trie<any> = _dig(trie, 'abc', (currentTree: Trie<any>, char: string) => {
     console.log(currentTree);
     console.log(char);
     console.log(currentTree.values);
