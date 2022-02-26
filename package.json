@@ -1,7 +1,7 @@
 {
-  "name": "@asianpersonn/trie",
-  "version": "1.0.1",
-  "description": "A Trie Tree",
+  "name": "tsstarter",
+  "version": "1.0.0",
+  "description": "A template for building TS code with Jest + git + npm publish",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -20,8 +20,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/jest": "^27.4.1",
-    "jest": "^27.5.1",
+    "@types/jest": "^27.0.3",
+    "jest": "^27.4.5",
     "npm-run-all": "^4.1.5",
     "ts-jest": "^27.1.1",
     "typescript": "^4.5.4"
