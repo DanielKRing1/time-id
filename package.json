@@ -1,7 +1,7 @@
 {
-  "name": "tsstarter",
+  "name": "@asianpersonn/realm-mock",
   "version": "1.0.0",
-  "description": "A template for building TS code with Jest + git + npm publish",
+  "description": "A mock of the Realm React Native library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

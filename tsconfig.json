@@ -1,8 +1,10 @@
 {
     "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "types": ["jest", "node"]
+      "target": "es5",
+      "module": "commonjs",
+      "lib": ["es2017", "es7", "es6", "dom"],
+      "esModuleInterop": true,
+      "types": ["jest", "node"]
     }
-}
+  }
+  
