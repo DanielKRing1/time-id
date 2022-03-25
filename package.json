@@ -1,6 +1,6 @@
 {
   "name": "@asianpersonn/realm-mock",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A mock of the Realm React Native library",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
