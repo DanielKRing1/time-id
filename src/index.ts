@@ -66,10 +66,14 @@ export default class Realm {
     }
   
     write(fn) {
-        if(this.writing) throw new Error(`Realm is alrady writing! Cannot execute function ${JSON.stringify(fn)}`);
+      if(this.writing) throw new Error(`Realm is alrady writing! Cannot execute function ${JSON.stringify(fn)}`);
+
       this.writing = true;
-      fn();
-      this.writing = false;
+      try {
+        fn();
+      }finally {
+        this.writing = false;
+      }
     }
   
     create(schemaName, object) {
