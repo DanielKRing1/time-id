@@ -44,7 +44,9 @@ export default class Realm {
       this.lastLookedUpModel = null;
     }
 
-    close(): void {};
+    close(): void {
+      this.isClosed = true;
+    };
   
     objects(schemaName) {
       this.lastLookedUpModel = schemaName;
