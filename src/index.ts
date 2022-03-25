@@ -22,6 +22,12 @@ export default class Realm {
     filtered: any;
     writing: any;
 
+    static UpdateMode = {
+        Never: 'never',
+        Modified: 'modified',
+        All: 'all'
+    };
+
     static open (params) {
         return new Promise((resolve) => {
             resolve(new Realm(params));
