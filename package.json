@@ -1,6 +1,6 @@
 {
   "name": "rn-click-listener",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "A global click listener that can register callbacks and detect clicks outside of components",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
