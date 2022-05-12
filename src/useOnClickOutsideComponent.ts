@@ -7,9 +7,9 @@ export const useOnClickOutsideComponent = (listenerId: string) => {
     const [clickedInside, setClickedInside] = useState(false);
     const [clickedInsideCount, setClickedInsideCount] = useState(0);
 
-    const ref = useRef();
+    const ref = useRef(null);
     const ctxt = useClickListener();
-    if (!ctxt) throw new Error('ClickListener is undefined');
+    if (!ctxt) throw new Error('useOnClickOutsideComponent ClickListener is undefined');
     const { addClickListener, rmClickListener } = ctxt;
 
     const getAllChildrenIds = (element): any[] => {
@@ -25,30 +25,21 @@ export const useOnClickOutsideComponent = (listenerId: string) => {
     };
 
     const handleClick = useCallback((e: GestureResponderEvent) => {
-      if(ref && ref.current && ref.current._children) {
-        console.log('oii');
-        console.log(getAllChildrenIds(ref.current));
-        console.log('aa')
-        // console.log(e.target._nativeTag);
-      }
-      
         // Clicked
         if (ref && ref.current && ref.current._children && e.target && getAllChildrenIds(ref.current).includes(e.target._nativeTag)) {
-            console.log('INSIIIIIIDE');
             registerClickInside();
         }
         // Clicked outside
         else {
             reset();
-            console.log('clicked outside');
         }
-    }, []);
+    }, [ref, ref.current]);
 
     useEffect(() => {
         addClickListener(listenerId, handleClick);
 
         return () => rmClickListener(listenerId);
-    }, [addClickListener, handleClick, listenerId, ref, rmClickListener]);
+    }, [addClickListener, handleClick, listenerId, ref, ref.current, rmClickListener]);
 
     const registerClickInside = () => {
         setClickedInside(true);
