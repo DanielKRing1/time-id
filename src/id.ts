@@ -26,7 +26,11 @@ type GetUniqueIdArgs = {
  *
  * @returns A string representing a timestamp + counter value, converted/compressed into the specified base
  */
-export const genId = ({ precision = 0, base = 62, keys }: GetUniqueIdArgs) => {
+export const genId = ({
+  precision = 0,
+  base = 62,
+  keys,
+}: GetUniqueIdArgs = {}) => {
   return toBase(now(precision), base, keys);
 };
 
