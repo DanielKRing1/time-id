@@ -1,3 +1,3 @@
 import { genId } from "./id";
 
-export { genId };
+export default genId;
