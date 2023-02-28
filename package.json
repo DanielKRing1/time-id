@@ -1,7 +1,7 @@
 {
-  "name": "rn-click-listener",
-  "version": "1.0.3",
-  "description": "A global click listener that can register callbacks and detect clicks outside of components",
+  "name": "@asianpersonn/time-id",
+  "version": "1.0.0",
+  "description": "Creates unique ids from the current time and a counter, up to a certain precision, compressed via base conversion",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -23,15 +23,20 @@
     "@types/jest": "^27.0.3",
     "jest": "^27.4.5",
     "npm-run-all": "^4.1.5",
-    "react": "^18.1.0",
-    "react-native": "^0.68.1",
     "ts-jest": "^27.1.1",
     "typescript": "^4.5.4"
   },
   "keywords": [
-    "react-native",
-    "click",
-    "listener",
-    "outside"
+    "id",
+    "time",
+    "timestamp",
+    "counter",
+    "uuid",
+    "milli",
+    "millisecond",
+    "nano",
+    "nanosecond",
+    "micro",
+    "microsecond"
   ]
 }

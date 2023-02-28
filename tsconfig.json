@@ -1,11 +1,10 @@
 {
-    "compilerOptions": {
-      "target": "es5",
-      "module": "commonjs",
-      "jsx": "react",
-      "lib": ["es2017", "es7", "es6", "dom"],
-      "esModuleInterop": true,
-      "types": ["jest", "node"]
-    }
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "jsx": "react",
+    "lib": ["es2017", "es7", "es6", "dom"],
+    "esModuleInterop": true,
+    "types": ["jest", "node"]
   }
-  
+}

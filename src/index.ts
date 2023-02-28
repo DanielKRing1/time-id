@@ -1,4 +1,3 @@
-import { ClickListenerProvider as ClickListener, useClickListener } from './ClickListenerContext';
-import { useOnClickOutsideComponent } from './useOnClickOutsideComponent';
+import { genId } from "./id";
 
-export { ClickListener, useClickListener, useOnClickOutsideComponent };
+export { genId };
